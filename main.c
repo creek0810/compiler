@@ -15,6 +15,9 @@ void print(Token *cur) {
             case TK_SYMBOL:
                 printf("SYMBOL: %d %d %s\n", cur->len, cur->val, cur->str);
                 break;
+            case TK_IDENT:
+                printf("IDENT: %d %d %s\n", cur->len, cur->val, cur->str);
+                break;
         }
         cur = cur->next;
     }
@@ -70,20 +73,29 @@ int main(int argc, char *argv[]) {
     }
 
     // token
-    cur_token = tokenizer(argv[1]);
+    tokenizer(argv[1]);
     // print(cur_token);
 
+    
     // parse
-    Node *node = parser();
+    parser();
     // printf("start print tree:------------\n");
     // print_tree(node);
-
+    
     // init asm
     printf(".intel_syntax noprefix\n");
     printf(".global _main\n");
     printf("_main:\n");
+    printf("  push rbp\n");
+    printf("  mov rbp, rsp\n");
+    printf("  sub rsp, 208\n");
     // start gen
-    gen(node);
-    printf("  pop rax\n");
+    for(int i=0; code[i] != NULL; i++) {
+        gen(code[i]);
+        printf("  pop rax\n");
+    }
+    printf("  mov rsp, rbp\n");
+    printf("  pop rbp\n");
     printf("  ret\n");
+    
 }

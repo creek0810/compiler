@@ -17,7 +17,7 @@ Token *add_token(Token *cur, TokenKind kind, char *str, int len) {
     return new_token;
 }
 
-Token *tokenizer(char *p) {
+void tokenizer(char *p) {
     Token head;
     Token *cur = &head;
     while(*p) {
@@ -26,6 +26,14 @@ Token *tokenizer(char *p) {
             p++;
             continue;
         }
+        // ident
+        if(*p <= 'z' && *p >= 'a') {
+            cur = add_token(cur, TK_IDENT, p, 1);
+            p++;
+            continue;
+        }
+
+
         // multi letter op
         if(startswith(p, ">=") || startswith(p, "<=") ||
            startswith(p, "==") || startswith(p, "!=")) {
@@ -34,7 +42,7 @@ Token *tokenizer(char *p) {
             continue;
         }
         // single letter op
-        if(strchr("+-*/()<>", *p)) {
+        if(strchr("+-*/()<>=;", *p)) {
             cur = add_token(cur, TK_SYMBOL, p, 1);
             p++;
             continue;
@@ -48,5 +56,5 @@ Token *tokenizer(char *p) {
         }
     }
     add_token(cur, TK_EOF, p, 0);
-    return head.next;
+    cur_token = head.next;
 }

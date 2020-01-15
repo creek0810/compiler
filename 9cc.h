@@ -9,7 +9,8 @@ typedef enum TokenKind TokenKind;
 enum TokenKind {
     TK_NUM,
     TK_SYMBOL,
-    TK_EOF
+    TK_IDENT,
+    TK_EOF,
 };
 
 typedef struct Token Token;
@@ -25,6 +26,7 @@ struct Token {
 typedef enum NodeKind NodeKind;
 enum NodeKind {
     ND_NUM,
+    ND_LVAR,
     ND_ADD,
     ND_SUB,
     ND_DIV,
@@ -33,23 +35,28 @@ enum NodeKind {
     ND_NE,
     ND_LE,
     ND_LT,
+    ND_ASSIGN,
 };
 
 typedef struct Node Node;
 struct Node {
     NodeKind kind;
     Node *lhs, *rhs;
-    int val;
+    int val;  // for number node
+    int offset; // for local var node
 };
 
 // global
 Token *cur_token;
+Node *code[100];
 
 // parser function
-Node *parser();
+void parser();
+Node *expr();
+Node *assign();
 
 // code gen function
 void gen(Node *cur);
 
 // tokenizer function
-Token *tokenizer(char *p);
+void tokenizer(char *p);

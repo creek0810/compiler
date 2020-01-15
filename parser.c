@@ -17,12 +17,17 @@ Node *add_node(NodeKind kind, Node *lhs, Node *rhs, int val){
     return cur_node;
 }
 
-Node *expr();
 
-Node *term() {
-    if(cur_token->kind == ND_NUM) {
-        
+
+Node *primary() {
+    if(cur_token->kind == TK_NUM) {
         Node *new_node = add_node(ND_NUM, NULL, NULL, cur_token->val);
+        cur_token = cur_token->next;
+        return new_node;
+    }
+    if(cur_token->kind == TK_IDENT) {
+        Node *new_node = add_node(ND_LVAR, NULL, NULL, 0);
+        new_node->offset = (cur_token->str[0] - 'a' + 1) * 8;
         cur_token = cur_token->next;
         return new_node;
     }
@@ -35,13 +40,13 @@ Node *term() {
 
 Node *unary() {
     if(consume("+")) {
-        return term();
+        return primary();
     }
     if(consume("-")) {
         Node *zero_node = add_node(ND_NUM, NULL, NULL, 0);
-        return add_node(ND_SUB, zero_node, term(), 0);
+        return add_node(ND_SUB, zero_node, primary(), 0);
     }
-    return term();
+    return primary();
 }
 
 Node *mul() {
@@ -74,6 +79,7 @@ Node *add() {
         return node;
     }
 }
+
 Node *relational() {
     Node *node = add();
     for(;;) {
@@ -98,6 +104,7 @@ Node *relational() {
 
 
 }
+
 Node *equality() {
     Node *node = relational();
     for(;;) {
@@ -112,9 +119,36 @@ Node *equality() {
         return node;
     }
 }
-Node *expr() {
-    return equality();
+
+Node *assign() {
+    Node *node = equality();
+    if(consume("=")) {
+        return add_node(ND_ASSIGN, node, assign(), 0);
+    }
+    return node;
 }
-Node *parser() {
-    return expr();
+
+
+Node *expr() {
+    return assign();
+}
+
+Node *stmt() {
+    Node *node = expr();
+    
+    consume(";");
+    return node;
+}
+
+// need to check
+void program() {
+    int i = 0;
+    while(cur_token->kind != TK_EOF) {
+        code[i++] = stmt();
+    }
+    code[i] = NULL;
+}
+
+void parser() {
+    return program();
 }
