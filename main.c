@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
     // parse
     parser();
     // printf("start print tree:------------\n");
-    // print_tree(node);
+    // print_tree(code[0]);
     
     // init asm
     printf(".intel_syntax noprefix\n");

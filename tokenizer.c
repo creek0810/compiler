@@ -17,6 +17,14 @@ Token *add_token(Token *cur, TokenKind kind, char *str, int len) {
     return new_token;
 }
 
+char *ident(Token *cur, char *p) {
+    char *q = p; // base loc;
+    while(isdigit(*p) || *p == '_' || isalpha(*p)) {
+        p++;
+    }
+    return p;
+}
+
 void tokenizer(char *p) {
     Token head;
     Token *cur = &head;
@@ -28,8 +36,9 @@ void tokenizer(char *p) {
         }
         // ident
         if(*p <= 'z' && *p >= 'a') {
-            cur = add_token(cur, TK_IDENT, p, 1);
-            p++;
+            char *q = ident(cur, p);
+            cur = add_token(cur, TK_IDENT, p, q - p);
+            p = q;
             continue;
         }
 

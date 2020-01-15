@@ -46,9 +46,19 @@ struct Node {
     int offset; // for local var node
 };
 
+typedef struct Lvar Lvar;
+struct Lvar {
+    Lvar *next;
+    char *str;
+    int len;
+    int offset;
+};
+
+
 // global
 Token *cur_token;
 Node *code[100];
+Lvar *locals; // symbol table
 
 // parser function
 void parser();

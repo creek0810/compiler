@@ -1,5 +1,5 @@
 #include "9cc.h"
-
+// help function
 bool consume(char *op) {
     if(cur_token->kind == TK_SYMBOL && cur_token->len == strlen(op) && strncmp(cur_token->str, op, cur_token->len) == 0) {
         cur_token = cur_token->next;
@@ -17,8 +17,31 @@ Node *add_node(NodeKind kind, Node *lhs, Node *rhs, int val){
     return cur_node;
 }
 
+Lvar *find_lvar(Token *tok) {
+    Lvar *cur = locals;
+    while(cur) {
+        if(tok->len == cur->len &&
+            strncmp(tok->str, cur->str, cur->len) == 0
+        ) {
+            return cur;
+        }
+        cur = cur->next;
+    }
+    return NULL;
+}
 
+Lvar *add_lvar(Token *tok) {
+    Lvar *cur_lvar = calloc(1, sizeof(Lvar));
+    cur_lvar->len = tok->len;
+    cur_lvar->str = tok->str;
+    cur_lvar->next = locals;
+    // check if locals is not null
+    cur_lvar->offset = (locals) ? locals->offset + 8 : 8;
+    locals = cur_lvar;
+    return cur_lvar;
+}
 
+// parse
 Node *primary() {
     if(cur_token->kind == TK_NUM) {
         Node *new_node = add_node(ND_NUM, NULL, NULL, cur_token->val);
@@ -27,7 +50,14 @@ Node *primary() {
     }
     if(cur_token->kind == TK_IDENT) {
         Node *new_node = add_node(ND_LVAR, NULL, NULL, 0);
-        new_node->offset = (cur_token->str[0] - 'a' + 1) * 8;
+        // calc offset
+        Lvar *lvar = find_lvar(cur_token);
+        if(lvar) {
+            new_node->offset = lvar->offset;
+        } else {
+            Lvar *new_lvar = add_lvar(cur_token);
+            new_node->offset = new_lvar->offset;
+        }
         cur_token = cur_token->next;
         return new_node;
     }
