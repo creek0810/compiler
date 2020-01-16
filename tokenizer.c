@@ -1,9 +1,23 @@
 #include "9cc.h"
 
+const int keyword_len = 1;
+const char *keyword[] = {
+    "return"
+};
+
 bool startswith(char *str, char *tar) {
     int tar_len = strlen(tar);
     if(strlen(str) >= tar_len) {
         return strncmp(str, tar, tar_len) == 0;
+    }
+    return false;
+}
+
+bool iskeyword(char *str, int len) {
+    for(int i=0; i<keyword_len; i++) {
+        if(strlen(keyword[i]) == len && strncmp(str, keyword[i], len) == 0) {
+            return true;
+        }
     }
     return false;
 }
@@ -17,7 +31,7 @@ Token *add_token(Token *cur, TokenKind kind, char *str, int len) {
     return new_token;
 }
 
-char *ident(Token *cur, char *p) {
+char *ident(char *p) {
     char *q = p; // base loc;
     while(isdigit(*p) || *p == '_' || isalpha(*p)) {
         p++;
@@ -34,14 +48,17 @@ void tokenizer(char *p) {
             p++;
             continue;
         }
-        // ident
+        // ident or keyword
         if(*p <= 'z' && *p >= 'a') {
-            char *q = ident(cur, p);
-            cur = add_token(cur, TK_IDENT, p, q - p);
+            char *q = ident(p);
+            if(iskeyword(p, q - p)) {
+                cur = add_token(cur, TK_KEYWORD, p, q - p);
+            } else{
+                cur = add_token(cur, TK_IDENT, p, q - p);
+            }
             p = q;
             continue;
         }
-
 
         // multi letter op
         if(startswith(p, ">=") || startswith(p, "<=") ||

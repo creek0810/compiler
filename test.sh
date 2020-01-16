@@ -46,5 +46,7 @@ try 1 '1>=1'
 try 0 '1>=2'
 try 14  'a = 3; b = 5 * 6 - 8; a + b / 2;'
 try 14  'a = 3; ab = 5 * 6 - 8; a + ab / 2;'
+try 3 'a = 3; ab = 5 * 6 - 8; a + ab / 2; return a;'
+try 22 'a = 3; ab = 5 * 6 - 8; a + ab / 2; return ab;'
 
 echo OK

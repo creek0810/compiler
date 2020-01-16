@@ -10,6 +10,7 @@ enum TokenKind {
     TK_NUM,
     TK_SYMBOL,
     TK_IDENT,
+    TK_KEYWORD,
     TK_EOF,
 };
 
@@ -36,6 +37,7 @@ enum NodeKind {
     ND_LE,
     ND_LT,
     ND_ASSIGN,
+    ND_RETURN,
 };
 
 typedef struct Node Node;

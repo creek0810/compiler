@@ -18,12 +18,19 @@ void print(Token *cur) {
             case TK_IDENT:
                 printf("IDENT: %d %d %s\n", cur->len, cur->val, cur->str);
                 break;
+            case TK_KEYWORD:
+                printf("KEYWORD: %d %d %s\n", cur->len, cur->val, cur->str);
+                break;
+
         }
         cur = cur->next;
     }
 }
 void print_node(Node *cur) {
     switch(cur->kind) {
+        case ND_LVAR:
+            printf("LVAR: %d\n", cur->offset);
+            break;
         case ND_NUM:
             printf("NUM: %d\n", cur->val);
             break;
@@ -51,14 +58,17 @@ void print_node(Node *cur) {
         case ND_LT:
             printf("LT\n");
             break;
+        case ND_RETURN:
+            printf("RETURN\n");
+            break;
         default:
             printf("wrong type\n");
     }
     printf("%d %d\n", cur->lhs, cur->rhs);
-
 }
 void print_tree(Node *cur) {
-    if(cur->kind == ND_NUM) {
+    if(cur == NULL) return;
+    if(cur->kind == ND_NUM || cur->kind == ND_LVAR) {
         print_node(cur);
         return;
     }
@@ -76,7 +86,6 @@ int main(int argc, char *argv[]) {
     tokenizer(argv[1]);
     // print(cur_token);
 
-    
     // parse
     parser();
     // printf("start print tree:------------\n");
@@ -97,5 +106,4 @@ int main(int argc, char *argv[]) {
     printf("  mov rsp, rbp\n");
     printf("  pop rbp\n");
     printf("  ret\n");
-    
 }

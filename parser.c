@@ -8,6 +8,17 @@ bool consume(char *op) {
     return false;
 }
 
+bool consume_keyword(char *keyword) {
+    if(cur_token->kind == TK_KEYWORD &&
+       cur_token->len == strlen(keyword) &&
+       strncmp(cur_token->str, keyword, cur_token->len) == 0
+    ) {
+        cur_token = cur_token->next;
+        return true;
+    }
+    return false;
+}
+
 Node *add_node(NodeKind kind, Node *lhs, Node *rhs, int val){
     Node *cur_node = calloc(1, sizeof(Node));
     cur_node->kind = kind;
@@ -91,7 +102,6 @@ Node *mul() {
             continue;
         }
         return node;
-
     }
 }
 
@@ -164,9 +174,16 @@ Node *expr() {
 }
 
 Node *stmt() {
-    Node *node = expr();
-    
-    consume(";");
+    Node *node;
+    if(consume_keyword("return")){
+        node = expr();
+        node = add_node(ND_RETURN, node, NULL, 0);
+        consume(";");
+    } else {
+        node = expr();
+        consume(";");
+    }
+    // printf("%d %d %d %d\n", node, node->lhs, node->rhs, node->val);
     return node;
 }
 
