@@ -18,6 +18,7 @@ bool consume_keyword(char *keyword) {
     }
     return false;
 }
+
 Node *add_node_biop(NodeKind kind, Node *lhs, Node *rhs){
     Node *cur_node = calloc(1, sizeof(Node));
     cur_node->kind = kind;
@@ -47,6 +48,13 @@ Node *add_node_while(Node *condition, Node *statement) {
     cur_node->kind = ND_WHILE;
     cur_node->condition = condition;
     cur_node->statements = statement;
+    return cur_node;
+}
+
+Node *add_node_block(Node **stmts) {
+    Node *cur_node = calloc(1, sizeof(Node));
+    cur_node->kind = ND_BLOCK;
+    cur_node->stmts = stmts;
     return cur_node;
 }
 
@@ -225,6 +233,14 @@ Node *stmt() {
         consume(")");
         Node *action = stmt();
         return add_node_while(condition, action);
+    } else if(consume("{")) {
+        Node **stmts = calloc(100, sizeof(Node));
+        int i = 0;
+        while(!consume("}")){
+            stmts[i] = stmt();
+            i++;
+        }
+        return add_node_block(stmts);
     } else {
         node = expr();
         consume(";");

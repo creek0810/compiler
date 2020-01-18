@@ -12,7 +12,14 @@ void gen_lvar(Node *node) {
 void gen(Node *cur) {
     int cur_idx = IF_CNT;
     int cur_while = WHILE_CNT;
+    int idx = 0;
     switch(cur->kind) {
+        case ND_BLOCK:
+            while((cur->stmts)[idx] != NULL) {
+                gen((cur->stmts)[idx]);
+                idx ++;
+            }
+            return;
         case ND_NUM:
             printf("  push %d\n", cur->val);
             return;

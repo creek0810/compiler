@@ -27,6 +27,9 @@ void print(Token *cur) {
 }
 void print_node(Node *cur) {
     switch(cur->kind) {
+        case ND_BLOCK:
+            printf("BLOCK\n");
+            break;
         case ND_LVAR:
             printf("LVAR: %d\n", cur->offset);
             break;
@@ -67,13 +70,23 @@ void print_node(Node *cur) {
             printf("WHILE\n");
             break;
         default:
-            printf("wrong type\n");
+            printf("wrong type %d\n", cur->kind);
     }
     printf("%d %d\n", cur->lhs, cur->rhs);
 }
 void print_tree(Node *cur) {
     if(cur == NULL) return;
     if(cur->kind == ND_NUM || cur->kind == ND_LVAR) {
+        print_node(cur);
+        return;
+    }
+    if(cur->kind == ND_BLOCK) {
+        //printf("%d\n", cur->stmts);
+        int idx = 0;
+        while((cur->stmts)[idx]) {
+            print_tree((cur->stmts)[idx]);
+            idx++;
+        }
         print_node(cur);
         return;
     }
@@ -124,4 +137,5 @@ int main(int argc, char *argv[]) {
     printf("  mov rsp, rbp\n");
     printf("  pop rbp\n");
     printf("  ret\n");
+    
 }

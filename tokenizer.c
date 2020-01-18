@@ -68,7 +68,7 @@ void tokenizer(char *p) {
             continue;
         }
         // single letter op
-        if(strchr("+-*/()<>=;", *p)) {
+        if(strchr("+-*/()<>=;{}", *p)) {
             cur = add_token(cur, TK_SYMBOL, p, 1);
             p++;
             continue;

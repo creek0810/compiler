@@ -15,6 +15,7 @@ try() {
     exit 1
   fi
 }
+<<"COMMENT"
 
 try 0 0
 try 42 42
@@ -55,4 +56,9 @@ try 2 'ab = 1; if (ab) return 2;'
 try 2 'ab = 0; if (ab) ab = 2; if(ab == 0) ab = ab + 2; return ab;'
 try 3 'ab = 0; if (ab) if(ab == 0) ab = 2 else ab = 1 else ab = 3; return ab;'
 try 5 'ab = 0; while(ab < 5) ab = ab + 1; return ab;'
+COMMENT
+try 5 'ab = 0; while(ab < 5) { ab = ab + 1; }return ab;'
+try 20 'ab = 0; bc = 10; while(ab < 5) { ab = ab + 1; bc = bc + 2;} return bc;'
+try 7 'ab = 0; if(ab == 0){ ab = 2; ab = ab + 5} else  ab = 4; return ab;'
+try 5 'ab = 0; if(ab){ ab = 2; ab = ab + 5} else {ab = 4; ab = ab + 1;} return ab;'
 echo OK

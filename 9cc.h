@@ -40,6 +40,7 @@ enum NodeKind {
     ND_RETURN,
     ND_IF,
     ND_WHILE,
+    ND_BLOCK,
 };
 
 typedef struct Node Node;
@@ -47,6 +48,7 @@ struct Node {
     NodeKind kind;
     Node *lhs, *rhs;
     Node *condition, *statements, *else_statement;
+    Node **stmts;
     int val;  // for number node
     int offset; // for local var node
 };
