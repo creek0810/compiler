@@ -18,6 +18,37 @@ bool consume_keyword(char *keyword) {
     }
     return false;
 }
+Node *add_node_biop(NodeKind kind, Node *lhs, Node *rhs){
+    Node *cur_node = calloc(1, sizeof(Node));
+    cur_node->kind = kind;
+    cur_node->lhs = lhs;
+    cur_node->rhs = rhs;
+    return cur_node;
+}
+
+Node *add_node_num(int val){
+    Node *cur_node = calloc(1, sizeof(Node));
+    cur_node->kind = ND_NUM;
+    cur_node->val = val;
+    return cur_node;
+}
+
+Node *add_node_if(Node *condition, Node *statement, Node *else_statement) {
+    Node *cur_node = calloc(1, sizeof(Node));
+    cur_node->kind = ND_IF;
+    cur_node->condition = condition;
+    cur_node->statements = statement;
+    cur_node->else_statement = else_statement;
+    return cur_node;
+}
+
+Node *add_node_while(Node *condition, Node *statement) {
+    Node *cur_node = calloc(1, sizeof(Node));
+    cur_node->kind = ND_WHILE;
+    cur_node->condition = condition;
+    cur_node->statements = statement;
+    return cur_node;
+}
 
 Node *add_node(NodeKind kind, Node *lhs, Node *rhs, int val){
     Node *cur_node = calloc(1, sizeof(Node));
@@ -55,7 +86,8 @@ Lvar *add_lvar(Token *tok) {
 // parse
 Node *primary() {
     if(cur_token->kind == TK_NUM) {
-        Node *new_node = add_node(ND_NUM, NULL, NULL, cur_token->val);
+
+        Node *new_node = add_node_num(cur_token->val);
         cur_token = cur_token->next;
         return new_node;
     }
@@ -84,8 +116,7 @@ Node *unary() {
         return primary();
     }
     if(consume("-")) {
-        Node *zero_node = add_node(ND_NUM, NULL, NULL, 0);
-        return add_node(ND_SUB, zero_node, primary(), 0);
+        return add_node_biop(ND_SUB, add_node_num(0), primary());
     }
     return primary();
 }
@@ -94,11 +125,11 @@ Node *mul() {
     Node *node = unary();
     for(;;) {
         if(consume("*")) {
-            node = add_node(ND_MUL, node, unary(), 0);
+            node = add_node_biop(ND_MUL, node, unary());
             continue;
         }
         if(consume("/")) {
-            node = add_node(ND_DIV, node, unary(), 0);
+            node = add_node_biop(ND_DIV, node, unary());
             continue;
         }
         return node;
@@ -109,11 +140,11 @@ Node *add() {
     Node *node = mul();
     for(;;){
         if(consume("+")) {
-            node = add_node(ND_ADD, node, mul(), 0);
+            node = add_node_biop(ND_ADD, node, mul());
             continue;
         }
         if(consume("-")) {
-            node = add_node(ND_SUB, node, mul(), 0);
+            node = add_node_biop(ND_SUB, node, mul());
             continue;
         }
         return node;
@@ -124,19 +155,19 @@ Node *relational() {
     Node *node = add();
     for(;;) {
         if(consume("<=")) {
-            node = add_node(ND_LE, node, add(), 0);
+            node = add_node_biop(ND_LE, node, add());
             continue;
         }
         if(consume(">=")) {
-            node = add_node(ND_LE, add(), node, 0);
+            node = add_node_biop(ND_LE, add(), node);
             continue;
         }
         if(consume("<")) {
-            node = add_node(ND_LT, node, add(), 0);
+            node = add_node_biop(ND_LT, node, add());
             continue;
         }
         if(consume(">")) {
-            node = add_node(ND_LT, add(), node, 0);
+            node = add_node_biop(ND_LT, add(), node);
             continue;
         }
         return node;
@@ -149,11 +180,11 @@ Node *equality() {
     Node *node = relational();
     for(;;) {
         if(consume("==")) {
-            node = add_node(ND_EQ, node, relational(), 0);
+            node = add_node_biop(ND_EQ, node, relational());
             continue;
         }
         if(consume("!=")) {
-            node = add_node(ND_NE, node, relational(), 0);
+            node = add_node_biop(ND_NE, node, relational());
             continue;
         }
         return node;
@@ -163,7 +194,7 @@ Node *equality() {
 Node *assign() {
     Node *node = equality();
     if(consume("=")) {
-        return add_node(ND_ASSIGN, node, assign(), 0);
+        return add_node_biop(ND_ASSIGN, node, assign());
     }
     return node;
 }
@@ -177,8 +208,23 @@ Node *stmt() {
     Node *node;
     if(consume_keyword("return")){
         node = expr();
-        node = add_node(ND_RETURN, node, NULL, 0);
+        node = add_node_biop(ND_RETURN, node, NULL);
         consume(";");
+    } else if(consume_keyword("if")) {
+        consume("(");
+        Node *condition = expr();
+        consume(")");
+        Node *action = stmt();
+        if(consume_keyword("else")) {
+            return add_node_if(condition, action, stmt());
+        }
+        return add_node_if(condition, action, NULL);
+    } else if(consume_keyword("while")) {
+        consume("(");
+        Node *condition = expr();
+        consume(")");
+        Node *action = stmt();
+        return add_node_while(condition, action);
     } else {
         node = expr();
         consume(";");

@@ -1,4 +1,6 @@
 #include "9cc.h"
+int IF_CNT = 0;
+int WHILE_CNT = 0;
 
 void gen_lvar(Node *node) {
     printf("  mov rax, rbp\n");
@@ -8,6 +10,8 @@ void gen_lvar(Node *node) {
 
 
 void gen(Node *cur) {
+    int cur_idx = IF_CNT;
+    int cur_while = WHILE_CNT;
     switch(cur->kind) {
         case ND_NUM:
             printf("  push %d\n", cur->val);
@@ -32,6 +36,35 @@ void gen(Node *cur) {
             printf("  mov rsp, rbp\n");
             printf("  pop rbp\n");
             printf("  ret\n");
+            return;
+        case ND_IF:
+            IF_CNT++;
+            gen(cur->condition);
+            printf("  pop rax\n");
+            printf("  cmp rax, 0\n");
+            if(cur->else_statement != NULL) {
+                printf("  je IF_ELSE_%d\n", cur_idx);
+            } else {
+                printf("  je IF_END_%d\n", cur_idx);
+            }
+            gen(cur->statements);
+            printf("  jmp IF_END_%d\n", cur_idx);
+            if(cur->else_statement != NULL) {
+                printf("IF_ELSE_%d:\n", cur_idx);
+                gen(cur->else_statement);
+            }
+            printf("IF_END_%d:\n", cur_idx);
+            return;
+        case ND_WHILE:
+            WHILE_CNT++;
+            printf("WHILE_START_%d:\n", cur_while);
+            gen(cur->condition);
+            printf("  pop rax\n");
+            printf("  cmp rax, 0\n");
+            printf("  je WHILE_END_%d\n", cur_while);
+            gen(cur->statements);
+            printf("  jmp WHILE_START_%d\n", cur_while);
+            printf("WHILE_END_%d:\n", cur_while);
             return;
     }
     gen(cur->lhs);

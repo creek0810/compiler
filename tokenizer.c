@@ -1,8 +1,8 @@
 #include "9cc.h"
 
-const int keyword_len = 1;
+const int keyword_len = 4;
 const char *keyword[] = {
-    "return"
+    "return", "if", "else", "while"
 };
 
 bool startswith(char *str, char *tar) {

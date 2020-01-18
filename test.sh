@@ -48,5 +48,11 @@ try 14  'a = 3; b = 5 * 6 - 8; a + b / 2;'
 try 14  'a = 3; ab = 5 * 6 - 8; a + ab / 2;'
 try 3 'a = 3; ab = 5 * 6 - 8; a + ab / 2; return a;'
 try 22 'a = 3; ab = 5 * 6 - 8; a + ab / 2; return ab;'
-
+try 0 'if (0) return 2;'
+try 0 'a = 0; if (a) return 2;'
+try 2 'if (1) return 2;'
+try 2 'ab = 1; if (ab) return 2;'
+try 2 'ab = 0; if (ab) ab = 2; if(ab == 0) ab = ab + 2; return ab;'
+try 3 'ab = 0; if (ab) if(ab == 0) ab = 2 else ab = 1 else ab = 3; return ab;'
+try 5 'ab = 0; while(ab < 5) ab = ab + 1; return ab;'
 echo OK

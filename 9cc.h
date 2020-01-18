@@ -38,12 +38,15 @@ enum NodeKind {
     ND_LT,
     ND_ASSIGN,
     ND_RETURN,
+    ND_IF,
+    ND_WHILE,
 };
 
 typedef struct Node Node;
 struct Node {
     NodeKind kind;
     Node *lhs, *rhs;
+    Node *condition, *statements, *else_statement;
     int val;  // for number node
     int offset; // for local var node
 };

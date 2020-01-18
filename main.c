@@ -21,7 +21,6 @@ void print(Token *cur) {
             case TK_KEYWORD:
                 printf("KEYWORD: %d %d %s\n", cur->len, cur->val, cur->str);
                 break;
-
         }
         cur = cur->next;
     }
@@ -61,6 +60,12 @@ void print_node(Node *cur) {
         case ND_RETURN:
             printf("RETURN\n");
             break;
+        case ND_IF:
+            printf("IF\n");
+            break;
+        case ND_WHILE:
+            printf("WHILE\n");
+            break;
         default:
             printf("wrong type\n");
     }
@@ -69,6 +74,19 @@ void print_node(Node *cur) {
 void print_tree(Node *cur) {
     if(cur == NULL) return;
     if(cur->kind == ND_NUM || cur->kind == ND_LVAR) {
+        print_node(cur);
+        return;
+    }
+    if(cur->kind == ND_IF) {
+        print_tree(cur->condition);
+        print_tree(cur->statements);
+        print_tree(cur->else_statement);
+        print_node(cur);
+        return;
+    }
+    if(cur->kind == ND_WHILE) {
+        print_tree(cur->condition);
+        print_tree(cur->statements);
         print_node(cur);
         return;
     }
@@ -89,7 +107,7 @@ int main(int argc, char *argv[]) {
     // parse
     parser();
     // printf("start print tree:------------\n");
-    // print_tree(code[0]);
+    // print_tree(code[1]);
     
     // init asm
     printf(".intel_syntax noprefix\n");
